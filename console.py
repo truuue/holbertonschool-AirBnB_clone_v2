@@ -114,18 +114,17 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def try_convert(self, value):
-        """The helper function that converts parameters values
-        into int ou floats if possible"""
-        try:
-            return int(value)
-        except ValueError:
+        """Function that converts parameters values"""
+        conversions = [int, float]
+        for convert_type in conversions:
             try:
-                return float(value)
+                return convert_type(value)
             except ValueError:
-                return value
+                pass
+        return value
 
     def do_create(self, args):
-        """Crée un objet de n'importe quelle classe avec des paramètres donnés."""
+        """  Create a Class object with parameters  """
 
         if not args:
             print("** class name missing **")
