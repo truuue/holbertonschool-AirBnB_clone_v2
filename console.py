@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] =='}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -113,6 +113,17 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
+    def try_convert(self, value):
+        """The helper function that converts parameters values
+        into int ou floats if possible"""
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return value
+
     def do_create(self, args):
         """Crée un objet de n'importe quelle classe avec des paramètres donnés."""
 
@@ -138,7 +149,9 @@ class HBNBCommand(cmd.Cmd):
             except Exception:
                 pass
 
-        new_instance = HBNBCommand.classes[class_name](**kwargs)
+        new_instance = HBNBCommand.classes[class_name](value)
+        for key, value in kwargs.items():
+            setattr(new_instance, key, value)
 
         storage.save()
         print(new_instance.id)
