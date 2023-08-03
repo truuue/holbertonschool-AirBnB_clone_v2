@@ -149,7 +149,7 @@ class HBNBCommand(cmd.Cmd):
             except Exception:
                 pass
 
-        new_instance = HBNBCommand.classes[class_name](value)
+        new_instance = HBNBCommand.classes[class_name]()
         for key, value in kwargs.items():
             setattr(new_instance, key, value)
 
