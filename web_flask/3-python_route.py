@@ -25,9 +25,8 @@ def c_text(text):
 
 
 @app.route('/python/<text>', strict_slashes=False)
-def python_text(text):
+def python_text(text = 'is cool'):
     """fonction that display Python and the value of <text> by called /python/<text>"""
-    text = 'is cool'
     text = text.replace('_', ' ')
     return f'Python {text}'
 
