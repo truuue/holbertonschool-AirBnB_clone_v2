@@ -44,7 +44,7 @@ def n_text(n):
 def n_html(n):
     """fonction that display a HTML page only if n is an int
     by called /number/<n>"""
-    return n_html('5-number.html', num=n)
+    return render_template('5-number.html', num=n)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
