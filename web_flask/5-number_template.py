@@ -47,10 +47,5 @@ def n_html(n):
     by called /number/<n>"""
     return render_template('5-number.html', num=n)
 
-@app.route('/number_odd_or_even/<int:n>', strict_slashes=False)
-def number_odd_or_even(n):
-    choise = "odd" if n % 2 != 0 else "even"
-    return render_template('6-number_odd_or_even.html', num=n, choise=choise)
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
