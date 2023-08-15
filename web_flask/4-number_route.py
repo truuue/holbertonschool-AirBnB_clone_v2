@@ -33,7 +33,7 @@ def python_text(text):
     return f'Python {text}'
 
 
-@app.route('/number/<n>', strict_slashes=False)
+@app.route('/number/<int:n>', strict_slashes=False)
 def n_text(n):
     """fonction that display n is a number only if n is an int
     by called /number/<n>"""
