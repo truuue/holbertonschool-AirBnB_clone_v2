@@ -37,8 +37,8 @@ def python_text(text):
 def n_text(n):
     """fonction that display n is a number only if n is an int
     by called /number/<n>"""
-    if n is type(int):
-        return f'{n} is a number'
+    return f'{n} is a number'
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
