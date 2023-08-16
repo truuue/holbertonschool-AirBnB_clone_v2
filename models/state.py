@@ -18,7 +18,7 @@ class State(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    if getenv('HBNB_TYPE_STORAGE', '') != 'db':
+    if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
             """Returns the list of City instances with state_id matching the current State.id"""
