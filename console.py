@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+import os
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -10,6 +11,8 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -114,45 +117,38 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def try_convert(self, value):
-        """Function that converts parameters values"""
-        conversions = [int, float]
-        for convert_type in conversions:
+        """The helper function that converts parameters values
+        into int ou floats if possible"""
+        try:
+            return int(value)
+        except ValueError:
             try:
-                return convert_type(value)
+                return float(value)
             except ValueError:
-                pass
-        return value
+                return value
 
     def do_create(self, args):
-        """  Create a Class object with parameters  """
-
+        """ Create an object of any class"""
         if not args:
             print("** class name missing **")
             return
 
-        arguments = args.split()
-        class_name = arguments[0]
-
-        if class_name not in HBNBCommand.classes:
+        elif args.split(" ")[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
-        kwargs = {}
+        params = {}
+        cmd = args.split(" ")
+        if len(cmd) >= 2:
+            for word in cmd[1:]:
+                key = word.split("=")[0]
+                value = word.split("=")[1].strip('"')
+                if "_" in value:
+                    value = value.replace("_", " ")
+                params[key] = value
 
-        for arg in arguments[1:]:
-            try:
-                key, value = arg.split("=")
-                value = value.replace("_", " ").strip("\"")
-                value = self.try_convert(value)
-                kwargs[key] = value
-            except Exception:
-                pass
-
-        new_instance = HBNBCommand.classes[class_name]()
-        for key, value in kwargs.items():
-            setattr(new_instance, key, value)
-
-        storage.save()
+        new_instance = HBNBCommand.classes[cmd[0]](**params)
+        storage.new(new_instance)
         print(new_instance.id)
         storage.save()
 
@@ -231,16 +227,21 @@ class HBNBCommand(cmd.Cmd):
         """ Shows all objects, or all objects of a class"""
         print_list = []
 
+        if isinstance(storage, DBStorage):
+            all_objs = storage.all().items()
+        elif isinstance(storage, FileStorage):
+            all_objs = storage._FileStorage__objects.items()
+
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in all_objs:
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in all_objs:
                 print_list.append(str(v))
 
         print(print_list)
@@ -253,7 +254,13 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
+
+        if isinstance(storage, DBStorage):
+            all_objs = storage.all()
+        elif isinstance(storage, FileStorage):
+            all_objs = storage._FileStorage__objects.items()
+
+        for k, v in all_objs:
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -313,7 +320,7 @@ class HBNBCommand(cmd.Cmd):
             if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] == '\"':
+            if args[2] and args[2][0] != '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
